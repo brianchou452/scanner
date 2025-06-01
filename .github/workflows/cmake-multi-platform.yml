@@ -86,7 +86,7 @@ jobs:
           name: scanner-${{ matrix.os }}-${{ matrix.c_compiler }}
           path: |
             ${{ steps.strings.outputs.build-output-dir }}/scanner
-            ${{ steps.strings.outputs.build-output-dir }}/${{ matrix.build_type }}/*.exe
+            ${{ steps.strings.outputs.build-output-dir }}/${{ matrix.build_type }}/scanner.exe
           retention-days: 30
 
   upload-release-asset:
@@ -104,9 +104,11 @@ jobs:
       - name: Compress artifacts before upload to release
         run: |
           for dir in ./artifacts/*; do
-            if [ -d "$dir" ]; then
+            if [ -d "$dir" ] && [ "$(ls -A "$dir")" ]; then
               name=$(basename "$dir")
               zip -j "./artifacts/${name}.zip" "$dir"/*
+            else
+              echo "Skipping empty or non-existent directory: $dir"
             fi
           done
 
