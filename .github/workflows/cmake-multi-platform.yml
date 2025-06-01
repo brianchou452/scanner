@@ -104,9 +104,18 @@ jobs:
       - name: Compress artifacts before upload to release
         run: |
           for dir in ./artifacts/*; do
-            if [ -d "$dir" ] && [ "$(ls -A "$dir")" ]; then
+            if [ -d "$dir" ] && [ "$(ls -A \"$dir\")" ]; then
               name=$(basename "$dir")
-              zip -j "./artifacts/${name}.zip" "$dir"/*
+              # 判斷 windows artifact 目錄下有 Release 子目錄
+              if [ -d "$dir/Release" ] && compgen -G "$dir/Release/*" > /dev/null; then
+                echo "Zipping Windows Release files in $dir/Release: $dir/Release/*"
+                zip -j "./artifacts/${name}.zip" "$dir/Release"/* || true
+              elif compgen -G "$dir/*" > /dev/null; then
+                echo "Zipping files in $dir: $dir/*"
+                zip -j "./artifacts/${name}.zip" "$dir"/* || true
+              else
+                echo "No files to zip in $dir or $dir/Release"
+              fi
             else
               echo "Skipping empty or non-existent directory: $dir"
             fi
