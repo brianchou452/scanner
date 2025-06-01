@@ -7,6 +7,7 @@
 #include "slre.h"
 
 #define MAX_TOKEN_LENGTH 1000
+#define CAPS_SIZE 4  // slre 的 caps size
 
 typedef enum {
   TOKEN_IDENTIFIER,     // IDEN
@@ -247,12 +248,11 @@ Token scan_number(Scanner* scanner) {
   }
   token.value[i] = '\0';
 
-  const int caps_size = 4;
-  struct slre_cap caps[caps_size];
+  struct slre_cap caps[CAPS_SIZE];
 
   // 判斷是否為整數
   const int r_int = slre_match("^\\d+$", token.value, strlen(token.value), caps,
-                               caps_size, 0);
+                               CAPS_SIZE, 0);
   if (r_int > 0) {
     token.type = TOKEN_INTEGER;
     return token;
@@ -261,7 +261,7 @@ Token scan_number(Scanner* scanner) {
   // 判斷是否為浮點數
   const int r_float =
       slre_match("^(\\d*\\.\\d+|\\d+\\.\\d*)([Ee][+|-]?\\d+)?$", token.value,
-                 strlen(token.value), caps, caps_size, 0);
+                 strlen(token.value), caps, CAPS_SIZE, 0);
   if (r_float > 0) {
     token.type = TOKEN_FLOAT;
     return token;
