@@ -40,3 +40,29 @@ target_include_directories(scanner_test PRIVATE ${slre_SOURCE_DIR})
 target_compile_definitions(scanner_test PRIVATE UNIT_TEST)
 target_link_libraries(scanner_test PRIVATE gtest_main)
 add_test(NAME ScannerUnitTest COMMAND scanner_test)
+
+# Code Coverage Support
+option(CODE_COVERAGE "Enable coverage reporting" ON)
+
+if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    message(STATUS "Enable code coverage flags")
+    target_compile_options(scanner_test PRIVATE --coverage -O0 -g)
+    target_link_libraries(scanner_test PRIVATE --coverage)
+
+    # Coverage target
+    find_program(GCOV_PATH gcov)
+    find_program(LCOV_PATH lcov)
+    find_program(GENHTML_PATH genhtml)
+    if(GCOV_PATH AND LCOV_PATH AND GENHTML_PATH)
+        add_custom_target(coverage
+            COMMAND ${LCOV_PATH} --directory . --zerocounters
+            COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
+            COMMAND ${LCOV_PATH} --directory . --capture --output-file coverage.info --ignore-errors inconsistent,unsupported,format
+            COMMAND ${LCOV_PATH} --remove coverage.info '/usr/*' '*/_deps/*' --output-file coverage.info.cleaned --ignore-errors inconsistent,unsupported,format
+            COMMAND ${GENHTML_PATH} -o coverage_report coverage.info.cleaned
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+            COMMENT "Generating code coverage report in coverage_report/index.html"
+            DEPENDS scanner_test
+        )
+    endif()
+endif()

@@ -95,8 +95,8 @@ TEST(ScannerTest, ScanCharacter) {
 
 // 讀入 ScanCharacter_in.txt 與 ScanCharacter_out.txt，逐行測試 scan_character
 TEST(ScannerTest, ScanCharacterFromFile) {
-  std::ifstream infile("test/data/ScanCharacter_in.txt");
-  std::ifstream outfile("test/data/ScanCharacter_out.txt");
+  std::ifstream infile("../test/data/ScanCharacter_in.txt");
+  std::ifstream outfile("../test/data/ScanCharacter_out.txt");
   ASSERT_TRUE(infile.is_open());
   ASSERT_TRUE(outfile.is_open());
   std::string input_line, output_line;
