@@ -9,9 +9,15 @@ extern "C" {
 #include <sstream>
 #include <string>
 
+#ifdef _WIN32
+#define NULL_DEVICE "NUL"
+#else
+#define NULL_DEVICE "/dev/null"
+#endif
+
 // Helper to create a scanner from string
 Scanner* make_scanner_from_str(const char* str) {
-  FILE* dummy = fopen("/dev/null", "w");
+  FILE* dummy = fopen(NULL_DEVICE, "w");
   Scanner* s = create_scanner(str, dummy);
   fclose(dummy);
   return s;
@@ -19,7 +25,7 @@ Scanner* make_scanner_from_str(const char* str) {
 
 TEST(ScannerTest, CreateAndDestroyScanner) {
   const char* input = "int a = 5;";
-  FILE* dummy = fopen("/dev/null", "w");
+  FILE* dummy = fopen(NULL_DEVICE, "w");
   Scanner* scanner = create_scanner(input, dummy);
   ASSERT_NE(scanner, nullptr);
   destroy_scanner(scanner);
