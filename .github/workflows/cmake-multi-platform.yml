@@ -12,6 +12,7 @@ on:
     branches: ["main"]
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -84,7 +85,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: scanner-${{ matrix.os }}-${{ matrix.c_compiler }}
-          path: ${{ steps.strings.outputs.build-output-dir }}/scanner*
+          path: ${{ steps.strings.outputs.build-output-dir }}/*
           retention-days: 30
 
   upload-release-asset:
