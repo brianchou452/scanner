@@ -101,12 +101,12 @@ jobs:
           path: ./artifacts
           merge-multiple: false
       - name: Display structure of downloaded files
-        run: ls -R
+        run: ls -lR ./artifacts
 
       - name: Compress artifacts before upload to release
         run: |
           for dir in ./artifacts/*; do
-            if [ -d "$dir" ] && [ "$(ls -A \"$dir\")" ]; then
+            if [ -d "$dir" ] && [ "$(ls -A "$dir")" ]; then
               name=$(basename "$dir")
               # 判斷 windows artifact 目錄下有 Release 子目錄
               if [ -d "$dir/Release" ] && compgen -G "$dir/Release/*" > /dev/null; then
