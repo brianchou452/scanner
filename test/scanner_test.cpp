@@ -124,19 +124,28 @@ TEST(ScannerTest, ScanCharacterFromFile) {
 }
 
 TEST(ScannerTest, ScanOperator) {
-  Scanner* s = make_scanner_from_str("++");
-  Token t = scan_operator(s);
-  EXPECT_EQ(t.type, TOKEN_OPERATOR);
-  EXPECT_STREQ(t.value, "++");
-  destroy_scanner(s);
+  std::string test_input[] = {">>", "<<", "++", "--", "+=", "-=", "*=", "/=",
+                              "%=", "->", "==", ">=", "<=", "!=", "+",  "-",
+                              "*",  "/",  "=",  ",",  "%",  "!",  "&&", "||",
+                              "&",  "[",  "]",  "|",  "^",  ".",  ">",  "<"};
+  for (auto i = 0; i < sizeof(test_input) / sizeof(test_input[0]); ++i) {
+    Scanner* s = make_scanner_from_str(test_input[i].c_str());
+    Token t = scan_operator(s);
+    EXPECT_EQ(t.type, TOKEN_OPERATOR);
+    EXPECT_STREQ(t.value, test_input[i].c_str());
+    destroy_scanner(s);
+  }
 }
 
 TEST(ScannerTest, ScanSpecial) {
-  Scanner* s = make_scanner_from_str(";");
-  Token t = scan_special(s);
-  EXPECT_EQ(t.type, TOKEN_SPECIAL);
-  EXPECT_STREQ(t.value, ";");
-  destroy_scanner(s);
+  std::string test_input[] = {"{", "}", "(", ")", ";", "?", ":"};
+  for (auto i = 0; i < sizeof(test_input) / sizeof(test_input[0]); ++i) {
+    Scanner* s = make_scanner_from_str(test_input[i].c_str());
+    Token t = scan_special(s);
+    EXPECT_EQ(t.type, TOKEN_SPECIAL);
+    EXPECT_STREQ(t.value, test_input[i].c_str());
+    destroy_scanner(s);
+  }
 }
 
 TEST(ScannerTest, ScanCommentSingle) {
@@ -184,6 +193,30 @@ TEST(ScannerTest, GetNextTokenNumber) {
   Token t = get_next_token(s);
   EXPECT_EQ(t.type, TOKEN_INTEGER);
   EXPECT_STREQ(t.value, "123");
+  destroy_scanner(s);
+}
+
+TEST(ScannerTest, GetNextTokenEscape) {
+  Scanner* s = make_scanner_from_str("\"Linexx\\Linexx\"");
+  Token t = get_next_token(s);
+  EXPECT_EQ(t.type, TOKEN_STRING);
+  EXPECT_STREQ(t.value, "Linexx\\Linexx");
+  destroy_scanner(s);
+}
+
+TEST(ScannerTest, GetNextTokenEscapeLF) {
+  Scanner* s = make_scanner_from_str("\"Line1\\\nLine2\"");
+  Token t = get_next_token(s);
+  EXPECT_EQ(t.type, TOKEN_STRING);
+  EXPECT_STREQ(t.value, "Line1Line2");
+  destroy_scanner(s);
+}
+
+TEST(ScannerTest, GetNextTokenEscapeCRLF) {
+  Scanner* s = make_scanner_from_str("\"Line1\\\r\nLine2\"");
+  Token t = get_next_token(s);
+  EXPECT_EQ(t.type, TOKEN_STRING);
+  EXPECT_STREQ(t.value, "Line1Line2");
   destroy_scanner(s);
 }
 
