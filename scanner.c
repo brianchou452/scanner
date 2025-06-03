@@ -283,7 +283,14 @@ static void scan_literal_content(Scanner* scanner, char delimiter,
     if (current_char(scanner) == '\\') {
       // Handle escape sequences
       advance(scanner);
-      if (current_char(scanner) != '\0') {
+      // 用跳脫字元進行字串換行的情況
+      if (current_char(scanner) == '\n') {  // LF 換行
+        advance(scanner);                   // Skip '\n'
+      } else if (current_char(scanner) == '\r' &&
+                 peek_char(scanner) == '\n') {  // CRLF 換行
+        advance(scanner);                       // Skip '\r'
+        advance(scanner);                       // Skip '\n'
+      } else if (current_char(scanner) != '\0') {
         if (i < MAX_TOKEN_LENGTH - 1) {
           buffer[i++] = '\\';
         }
